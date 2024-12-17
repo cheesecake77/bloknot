@@ -1,0 +1,26 @@
+#!/bin/bash
+
+### Configuration 
+BN_EDITOR=
+BN_DIR=
+BN_FILE_FOMAT=
+
+function init(){
+	# create folder, if it doesnt exist
+}
+
+function 
+
+function main(){
+# switch on $1, options are 
+# i or s or is or si dunno - interactive tui search
+# any string != any parameters - open note with string.md name
+# r - delete note(move to trash maybe)
+# rf - delete like sudo rm -fr /*
+# g - find text in the notes and list notes with that text
+# h - help
+}
+
+main $@
+
+
