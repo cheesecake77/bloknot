@@ -1,19 +1,54 @@
 #!/bin/bash
 
-### Configuration 
-BN_EDITOR=
-BN_DIR=
-BN_FILE_FOMAT=
+### CONFIG ###
+BN_EDITOR=vim
+BN_DIR="/home/$(whoami)/notes"
+BN_FILE_FORMAT="md"
 
-function init(){
+function init() {
 	# create folder, if it doesnt exist
+	mkdir -p $BN_DIR
 }
 
-function 
-
-function main(){
+function main() {
 # switch on $1, options are 
-# i or s or is or si dunno - interactive tui search
+case $1 in 
+
+# On no args we probably do ls
+"")
+str=killer.md
+ls $BN_DIR | sed -e s/".$BN_FILE_FORMAT"/""/g | less
+;;
+
+# Remove the note
+"r")
+shift
+formatted_path = $()
+if [ -f $BN_DIR/"$@"."$BN_FILE_FORMAT" ]; then
+	echo "Found it"
+   echo $BN_DIR/"$@"."$BN_FILE_FORMAT" 
+else
+	echo "No files?"
+   echo $BN_DIR/"$@"."$BN_FILE_FORMAT" 
+fi
+;;
+
+# S stands for search. Search notes by name. Probably fuzzy search
+"s")
+echo "We gonna search all notes containing arg"
+;;
+
+"g")
+echo "searh text in notes and print note names and string where arg where detected"
+;;
+
+"*")
+echo "there are definetely some args"
+;;
+
+esac
+
+# no args - dunno gor now
 # any string != any parameters - open note with string.md name
 # r - delete note(move to trash maybe)
 # rf - delete like sudo rm -fr /*
@@ -22,5 +57,3 @@ function main(){
 }
 
 main $@
-
-
