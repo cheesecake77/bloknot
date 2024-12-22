@@ -2,58 +2,98 @@
 
 ### CONFIG ###
 BN_EDITOR=vim
-BN_DIR="/home/$(whoami)/notes"
+BN_DIR="/home/$(whoami)/SynologyDrive"
 BN_FILE_FORMAT="md"
 
+# Turns 'word1 word2' to 'word1\ word2'
+function escape_spaces {
+	echo $@ | sed -e s/' '/'\\ '/g
+} 
+
+# Turns 'word' to '*w*o*r*d*'
+function joinstr { 
+	output="*"
+	foo=$@
+	for (( i=0; i<${#foo}; i++ )); do
+  	output=$output"${foo:$i:1}*"
+	done
+	echo "$output"
+}
+
+# Added just to change message once instead of searching all occurences
+function no_file_msg (){
+	echo "Ooops there is no $@"
+}
+
+# Create folder, if it doesnt exist
 function init() {
-	# create folder, if it doesnt exist
 	mkdir -p $BN_DIR
 }
 
 function main() {
-# switch on $1, options are 
+
+init
+
 case $1 in 
 
-# On no args we probably do ls
+# Without args just print help 
 "")
-str=killer.md
-ls $BN_DIR | sed -e s/".$BN_FILE_FORMAT"/""/g | less
+printf %s "\
+	bloknot - a simple script to manage your plain text notes.
+
+	bn [option] [args] or
+	bn [note name]
+
+	Options
+	=> [r]emove [name] - Delete note.
+	=> [s]earch [string] - List notes containing letters from [string] in name. Case insensitive
+	=> [g]rep [text] - List notes containing [text]. Case insensitive
+	=> [name] - Open/create note with that name. Names can contain whitespaces
+
+"
 ;;
 
 # Remove the note
+# Maybe someday i'll add trashcan for this, but for now it's just simple rm
 "r")
 shift
-formatted_path = $()
-if [ -f $BN_DIR/"$@"."$BN_FILE_FORMAT" ]; then
-	echo "Found it"
-   echo $BN_DIR/"$@"."$BN_FILE_FORMAT" 
+FILE_PATH=$BN_DIR/$@.$BN_FILE_FORMAT
+if [ -f "$FILE_PATH" ]; then
+	rm "$FILE_PATH"
 else
-	echo "No files?"
-   echo $BN_DIR/"$@"."$BN_FILE_FORMAT" 
+	echo $(no_file_msg "$@.$BN_FILE_FORMAT")
 fi
 ;;
 
-# S stands for search. Search notes by name. Probably fuzzy search
+# S stands for search. Search notes by name. We make the pattern from 
+# args and then find it. Case insensitive.
+# That makes something like fuzzy search.
+# I believe there is much more effective way to do this.
+# Any recommendation are appreciated
+
 "s")
-echo "We gonna search all notes containing arg"
+shift
+find $BN_DIR -type f -iname "$(joinstr $@)" -exec basename {} .$BN_FILE_FORMAT ';'
 ;;
 
+# Just a normal case insensitive grep here
+# Again, there are probably more effective ways to do this.
 "g")
-echo "searh text in notes and print note names and string where arg where detected"
+shift
+grep -li -e "$*" $BN_DIR/*  | while read -r line ; do
+	basename "$line" .$BN_FILE_FORMAT
+	done
 ;;
 
-"*")
-echo "there are definetely some args"
+# Other arguements treated as note name,
+# so we just open it in $BN_EDITOR
+*)
+file=$(echo $BN_DIR/$(escape_spaces $@).$BN_FILE_FORMAT)
+# Calling bash because \ treated like newline or something
+bash -c "$BN_EDITOR $file"
 ;;
 
 esac
-
-# no args - dunno gor now
-# any string != any parameters - open note with string.md name
-# r - delete note(move to trash maybe)
-# rf - delete like sudo rm -fr /*
-# g - find text in the notes and list notes with that text
-# h - help
 }
 
 main $@
