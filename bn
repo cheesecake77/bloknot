@@ -7,27 +7,29 @@ BN_FILE_FORMAT="md"
 
 # Turns 'word1 word2' to 'word1\ word2'
 function escape_spaces {
-	echo $@ | sed -e s/' '/'\\ '/g
+	#echo "$*" | sed -e s/' '/'\\ '/g
+	string="$*"
+	echo "${string/ /\\ }"
 } 
 
 # Turns 'word' to '*w*o*r*d*'
 function joinstr { 
 	output="*"
-	foo=$@
+	foo="$*"
 	for (( i=0; i<${#foo}; i++ )); do
-  	output=$output"${foo:$i:1}*"
+  	output=${output}"${foo:${i}:1}*"
 	done
 	echo "$output"
 }
 
 # Added just to change message once instead of searching all occurences
 function no_file_msg (){
-	echo "Ooops there is no $@"
+	echo "Ooops there is no $*"
 }
 
 # Create folder, if it doesnt exist
 function init() {
-	mkdir -p $BN_DIR
+	mkdir -p "$BN_DIR"
 }
 
 function main() {
@@ -57,11 +59,11 @@ printf %s "\
 # Maybe someday i'll add trashcan for this, but for now it's just simple rm
 "r")
 shift
-FILE_PATH=$BN_DIR/$@.$BN_FILE_FORMAT
+FILE_PATH="$BN_DIR/$*.$BN_FILE_FORMAT"
 if [ -f "$FILE_PATH" ]; then
 	rm "$FILE_PATH"
 else
-	echo $(no_file_msg "$@.$BN_FILE_FORMAT")
+	no_file_msg "$*.$BN_FILE_FORMAT"
 fi
 ;;
 
@@ -73,14 +75,15 @@ fi
 
 "s")
 shift
-find $BN_DIR -type f -iname "$(joinstr $@)" -exec basename {} .$BN_FILE_FORMAT ';'
+query=$(tr -d ' ' <<< "$*")
+find "$BN_DIR" -type f -iname "$(joinstr "${query}")" -exec basename {} .$BN_FILE_FORMAT ';'
 ;;
 
 # Just a normal case insensitive grep here
 # Again, there are probably more effective ways to do this.
 "g")
 shift
-grep -li -e "$*" $BN_DIR/*  | while read -r line ; do
+grep -li -e "$*" "$BN_DIR"/*  | while read -r line ; do
 	basename "$line" .$BN_FILE_FORMAT
 	done
 ;;
@@ -88,12 +91,11 @@ grep -li -e "$*" $BN_DIR/*  | while read -r line ; do
 # Other arguements treated as note name,
 # so we just open it in $BN_EDITOR
 *)
-file=$(echo $BN_DIR/$(escape_spaces $@).$BN_FILE_FORMAT)
-# Calling bash because \ treated like newline or something
-bash -c "$BN_EDITOR $file"
+file="$BN_DIR"/"$(escape_spaces "$*")".$BN_FILE_FORMAT
+bash -c "${BN_EDITOR} ${file}"
 ;;
 
 esac
 }
 
-main $@
+main "$@"
