@@ -2,7 +2,7 @@
 
 ### CONFIG ###
 BN_EDITOR=vim
-BN_DIR="/home/$(whoami)/SynologyDrive"
+BN_DIR="/home/$(whoami)/notes"
 BN_FILE_FORMAT="md"
 
 # Turns 'word1 word2' to 'word1\ word2'
