@@ -76,7 +76,7 @@ fi
 "s")
 shift
 query=$(tr -d ' ' <<< "$*")
-find "$BN_DIR" -type f -iname "$(joinstr "${query}")" -exec basename {} .$BN_FILE_FORMAT ';'
+find "$BN_DIR" -maxdepth 1 -type f -iname "$(joinstr "${query}")" -exec basename {} .$BN_FILE_FORMAT ';'
 ;;
 
 # Just a normal case insensitive grep here
