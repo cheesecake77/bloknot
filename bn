@@ -9,7 +9,7 @@ BN_FILE_FORMAT="md"
 function escape_spaces {
 	#echo "$*" | sed -e s/' '/'\\ '/g
 	string="$*"
-	echo "${string/ /\\ }"
+	echo "${string// /\\ }"
 } 
 
 # Turns 'word' to '*w*o*r*d*'
