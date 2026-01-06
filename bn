@@ -1,19 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ### CONFIG ###
 BN_EDITOR=vim
-BN_DIR="/home/$(whoami)/notes"
+BN_DIR="$HOME/notes"
 BN_FILE_FORMAT="md"
 
 # Turns 'word1 word2' to 'word1\ word2'
-function escape_spaces {
+escape_spaces()
+{
 	#echo "$*" | sed -e s/' '/'\\ '/g
 	string="$*"
 	echo "${string// /\\ }"
 } 
 
 # Turns 'word' to '*w*o*r*d*'
-function joinstr { 
+join_str()
+{ 
 	output="*"
 	foo="$*"
 	for (( i=0; i<${#foo}; i++ )); do
@@ -23,16 +25,16 @@ function joinstr {
 }
 
 # Added just to change message once instead of searching all occurences
-function no_file_msg (){
+no_file_msg (){
 	echo "Ooops there is no $*"
 }
 
 # Create folder, if it doesnt exist
-function init() {
+init() {
 	mkdir -p "$BN_DIR"
 }
 
-function main() {
+main() {
 
 init
 
@@ -76,7 +78,7 @@ fi
 "s")
 shift
 query=$(tr -d ' ' <<< "$*")
-find "$BN_DIR" -maxdepth 1 -type f -iname "$(joinstr "${query}")" -exec basename {} .$BN_FILE_FORMAT ';'
+find "$BN_DIR" -maxdepth 1 -type f -iname "$(join_str "${query}")" -exec basename {} .$BN_FILE_FORMAT ';'
 ;;
 
 # Just a normal case insensitive grep here
@@ -91,8 +93,8 @@ grep -li -e "$*" "$BN_DIR"/*  | while read -r line ; do
 # Other arguements treated as note name,
 # so we just open it in $BN_EDITOR
 *)
-file="$BN_DIR"/"$(escape_spaces "$*")".$BN_FILE_FORMAT
-bash -c "${BN_EDITOR} ${file}"
+file="$BN_DIR/"$*".$BN_FILE_FORMAT"
+"${BN_EDITOR}" "${file}"
 ;;
 
 esac
